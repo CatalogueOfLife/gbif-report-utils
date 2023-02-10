@@ -98,3 +98,37 @@ ORDER BY
   o.scientificName,
   o.acceptedScientificName;
 ```
+
+There results of this are [available for download](https://download.gbif.org/tim/col/taxa_summary.tsv.gz).
+
+#### Step 3: Analyse the results
+
+_The following is based on the procedure above, using the GBIF Backbone [23 November 2022](https://hosted-datasets.gbif.org/datasets/backbone/2022-11-23/)_
+
+There are many ways in which one might analyse this result. Some examples and summaries are given.
+
+**EVERYTHING BELOW SHOULD BE SCRUTINIZED BEFORE DRAWING ANY CONCLUSIONS - IT MAY CONTAIN ERRORS**
+
+
+1. `2,995,271` names in total for the `2,178,064,458` occurrences
+    ```
+    SELECT count(*), sum(occurrenceCount) FROM tim.taxa_summary;
+    ```
+
+2. `2,780,033` names and `2,172,337,244` occurrences when name starting with `BOLD:` or `SH[0-9]` are excluded
+   ´´´
+   SELECT count(*), sum(occurrenceCount) FROM tim.taxa_summary WHERE scientificName NOT LIKE 'BOLD%' AND scientificName NOT RLIKE('^SH[0-9]*');
+   ´´´
+
+3. `2,150,605` names (`77%`) from `2,060,937,274` occurrence (`95%`) can be organised using the COL alone, where COL provides the accepted name, understanding synonymy where necessary.
+
+   ```
+   SELECT 
+     count(*) AS names, sum(occurrenceCount) AS occurrences
+   FROM 
+     tim.taxa_summary
+   WHERE 
+     (nameSource = 'Catalogue of Life Checklist' OR nameSource IS NULL) AND
+     (acceptedNameSource = 'Catalogue of Life Checklist' OR acceptedNameSource IS NULL) AND
+     scientificName NOT LIKE 'BOLD%' AND scientificName NOT RLIKE('^SH[0-9]*');     
+   ```

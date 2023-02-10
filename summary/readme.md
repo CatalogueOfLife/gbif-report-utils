@@ -38,3 +38,59 @@ ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 LOAD DATA LOCAL INPATH 'backbone_sources.tsv' INTO TABLE tim.backbone_source;
 ```
 
+Now we process the occurrence data into the master summary view which holds the 
+classification, the origin of the accepted name and synonym if applicable along with 
+the number of occurrences / datasets having the classification.
+
+This process only looks for records that have been idenfitied to a species or more precise, ignoring records that match to higher taxa only. 
+
+```
+CREATE TABLE tim.taxa_summary ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' AS
+SELECT
+  o.taxonKey AS taxonID,
+  name.rank AS taxonRank,
+  o.acceptedTaxonKey AS acceptedTaxonID,
+  accepted.rank AS acceptedTaxonRank,
+  o.kingdom,
+  o.family,
+  o.scientificName,
+  o.acceptedScientificName,
+  name.sourceKey AS nameSourceKey,
+  name.colSourceKey AS nameColSourceKey,
+  name.title AS nameSource,
+  name.colSource AS nameColSource,
+  accepted.sourceKey AS acceptedNameSourceKey,
+  accepted.colSourceKey AS acceptedNameColSourceKey,
+  accepted.title AS acceptedNameSource,
+  accepted.colSource AS acceptedNameColSource,
+  count(*) AS occurrenceCount,
+  count(DISTINCT o.datasetKey) AS occurrenceDatasetCount
+FROM
+  prod_h.occurrence o 
+  JOIN tim.backbone_source name ON o.taxonKey=name.id
+  JOIN tim.backbone_source accepted ON o.acceptedTaxonKey=accepted.id
+WHERE o.speciesKey IS NOT NULL  
+GROUP BY 
+  o.taxonKey,
+  name.rank,
+  o.acceptedTaxonKey,
+  accepted.rank,
+  o.acceptedTaxonKey,
+  o.kingdom,
+  o.family,
+  o.scientificName,
+  o.acceptedScientificName,
+  name.sourceKey,
+  name.colSourceKey,
+  name.title,
+  name.colSource,
+  accepted.sourceKey,
+  accepted.colSourceKey,
+  accepted.title,
+  accepted.colSource
+ORDER BY
+  o.kingdom,
+  o.family,
+  o.scientificName,
+  o.acceptedScientificName;
+```

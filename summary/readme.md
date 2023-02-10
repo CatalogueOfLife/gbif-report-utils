@@ -116,9 +116,9 @@ There are many ways in which one might analyse this result. Some examples and su
     ```
 
 2. `2,780,033` names and `2,172,337,244` occurrences when name starting with `BOLD:` or `SH[0-9]` are excluded
-   ´´´
-   SELECT count(*), sum(occurrenceCount) FROM tim.taxa_summary WHERE scientificName NOT LIKE 'BOLD%' AND scientificName NOT RLIKE('^SH[0-9]*');
-   ´´´
+    ```
+    SELECT count(*), sum(occurrenceCount) FROM tim.taxa_summary WHERE scientificName NOT LIKE 'BOLD%' AND scientificName NOT RLIKE('^SH[0-9]*');
+    ```
 
 3. `2,150,605` names (`77%`) from `2,060,937,274` occurrence (`95%`) can be organised using the COL alone, where COL provides the accepted name, understanding synonymy where necessary.
 

@@ -3,6 +3,8 @@
 This procedure produces a CSV that documents which checklist (COL or otherwise) provided the taxon to which the occurrence record was organised in the GBIF backbone.
 The intention is to help identify significant gaps in the COL for the purpose of organising GBIF data.
 
+#### Step 1: Load the backbone into Hive
+
 From the GBIF checklistbank, an export is made:
 
 ```
@@ -23,7 +25,7 @@ From the GBIF checklistbank, an export is made:
     u.dataset_key=nubKey() AND u.deleted IS NULL) to 'backbone_sources.tsv'
 ```
 
-In Hive, we create ane load the table:
+In Hive, we create and load the table:
 
 ```
 CREATE TABLE IF NOT EXISTS tim.backbone_source (
@@ -37,6 +39,8 @@ ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 
 LOAD DATA LOCAL INPATH 'backbone_sources.tsv' INTO TABLE tim.backbone_source;
 ```
+
+#### Step 2: Process the origin of occurrence data
 
 Now we process the occurrence data into the master summary view which holds the 
 classification, the origin of the accepted name and synonym if applicable along with 
